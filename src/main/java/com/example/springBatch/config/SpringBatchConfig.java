@@ -32,6 +32,7 @@ public class SpringBatchConfig {
         itemReader.setName("csvReader");
         itemReader.setLinesToSkip(1);
         itemReader.setLineMapper(lineMapper());
+        return itemReader;
     }
 
     private LineMapper<Customer> lineMapper() {
