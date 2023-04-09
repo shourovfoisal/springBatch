@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
@@ -23,7 +24,7 @@ public class SpringBatchConfig {
     private JobBuilderFactory jobBuilderFactory;
     private StepBuilderFactory stepBuilderFactory;
 
-    private CustomerRepository repository;
+    private CustomerRepository customerRepository;
 
     @Bean
     public FlatFileItemReader<Customer> reader() {
@@ -53,6 +54,19 @@ public class SpringBatchConfig {
         lineMapper.setFieldSetMapper(fieldSetMapper);
 
         return lineMapper;
+    }
+
+    @Bean
+    public CustomerProcessor processor() {
+        return new CustomerProcessor();
+    }
+
+    @Bean
+    public RepositoryItemWriter<Customer> writer() {
+        RepositoryItemWriter<Customer> itemWriter = new RepositoryItemWriter<>();
+        itemWriter.setRepository(customerRepository);
+        itemWriter.setMethodName("save");   // this evaluates to customerRepository.save()
+        return itemWriter;
     }
 
 }
