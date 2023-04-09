@@ -3,6 +3,8 @@ package com.example.springBatch.config;
 import com.example.springBatch.entity.Customer;
 import com.example.springBatch.repository.CustomerRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
@@ -67,6 +69,22 @@ public class SpringBatchConfig {
         itemWriter.setRepository(customerRepository);
         itemWriter.setMethodName("save");   // this evaluates to customerRepository.save()
         return itemWriter;
+    }
+
+    @Bean
+    public Step step1() {
+        return stepBuilderFactory.get("csv-step").<Customer, Customer>chunk(10)
+                .reader(reader())
+                .processor(processor())
+                .writer(writer())
+                .build();
+    }
+
+    public Job fileJob() {
+        return jobBuilderFactory.get("importCustomers")
+                .flow(step1())
+                .end()
+                .build();
     }
 
 }
